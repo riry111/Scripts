@@ -28,7 +28,7 @@ railsアプリの動作確認は、ブラウザより
 
 ~~~
 -bash-4.2# docker build -t mamurai/eap6.4 ./eap6.4
--bash-4.2# docker run -p 8080:8080 -p 9990:9990 -p 9999:9999 -itd --link pgsql01:db --name eap mamurai/eap6.4
+-bash-4.2# docker run -p 8080:8080 -p 9990:9990 -p 9999:9999 -itd --link pgsql01:db --name eap6.4 mamurai/eap6.4
 ~~~
 Dockerfile実行時のCLIを起動してデータソースを作成することを試みたが、環境変数をDatasourceの接続URLに指定して動作させることに失敗。
 テンプレートのstandalone.xml を準備し、docker run 初回起動時に　sedでキーワードとアドレス/ポート番号を変換している。詳細はDockerfile及び、コンテナ内の **/home/jboss/run.sh**を参照

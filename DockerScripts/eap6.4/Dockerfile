@@ -98,12 +98,21 @@ RUN echo 'export DB_PORT_5432_TCP_PORT=`cat /var/run/jboss/DB_PORT_5432_TCP_PORT
 USER root
 RUN echo "#!/bin/bash" > $HOME/run.sh
 RUN echo "echo JBoss EAP Start script" >> $HOME/run.sh
-RUN echo "if [ ! -e ${CFG}_INIT ]" >> $HOME/run.sh
-RUN echo "then" >> $HOME/run.sh
+
+RUN echo "if [ ! -e ${CFG}_INIT ]; then" >> $HOME/run.sh
 RUN echo "	cp -p ${CFG} ${CFG}_INIT" >> $HOME/run.sh
 RUN echo "	chown jboss:jboss ${CFG}_INIT" >> $HOME/run.sh
+RUN echo "	mkdir -p $HOME/env" >> $HOME/run.sh
+RUN echo "	echo \$DB_PORT_5432_TCP_ADDR > $HOME/env/DB_PORT_5432_TCP_ADDR" >> $HOME/run.sh
+RUN echo "	echo \$DB_PORT_5432_TCP_PORT > $HOME/env/DB_PORT_5432_TCP_PORT" >> $HOME/run.sh
 RUN echo "	sed -i \"s/DB_PORT_5432_TCP_ADDR/\$DB_PORT_5432_TCP_ADDR/\"  ${CFG}" >> $HOME/run.sh
 RUN echo "	sed -i \"s/DB_PORT_5432_TCP_PORT/\$DB_PORT_5432_TCP_PORT/\"  ${CFG}" >> $HOME/run.sh
+RUN echo "else" >> $HOME/run.sh
+RUN echo "	OLD_ADDR=\`cat $HOME/env/DB_PORT_5432_TCP_ADDR\`" >> $HOME/run.sh
+RUN echo "	OLD_PORT=\`cat $HOME/env/DB_PORT_5432_TCP_PORT\`" >> $HOME/run.sh
+RUN echo "	sed -i \"s/\${OLD_ADDR}:\${OLD_PORT}/\${DB_PORT_5432_TCP_ADDR}:\${DB_PORT_5432_TCP_PORT}/\"  ${CFG}" >> $HOME/run.sh
+RUN echo "	echo \$DB_PORT_5432_TCP_ADDR > $HOME/env/DB_PORT_5432_TCP_ADDR" >> $HOME/run.sh
+RUN echo "	echo \$DB_PORT_5432_TCP_PORT > $HOME/env/DB_PORT_5432_TCP_PORT" >> $HOME/run.sh
 RUN echo "fi" >> $HOME/run.sh
 RUN echo 'runuser -l jboss -c "$INSTALLDIR/jboss-eap-6.4/bin/standalone.sh -c standalone.xml -b 0.0.0.0 -bmanagement 0.0.0.0"' >> $HOME/run.sh
 RUN echo "while [[ true ]];do" >>$HOME/run.sh
